@@ -124,6 +124,7 @@
 #include <clang/Frontend/TextDiagnosticPrinter.h>
 #include <clang/Frontend/Utils.h>
 #include <clang/Basic/TargetInfo.h>
+#include <clang/Lex/PreprocessorOptions.h>
 #include <llvm/Support/ToolOutputFile.h>
 #include <llvm/Support/Host.h>
 #include <llvm/Support/raw_ostream.h>
@@ -427,8 +428,8 @@ Module::Module(const char *fn) {
                     ISPC_VERSION, __DATE__);
 #endif
 #if ISPC_LLVM_VERSION >= ISPC_LLVM_3_4 // LLVM 3.4+
-            diCompileUnit = 
-#endif // LLVM_3_4+            
+            diCompileUnit =
+#endif // LLVM_3_4+
             diBuilder->createCompileUnit(llvm::dwarf::DW_LANG_C99,  /* lang */
                                          name,  /* filename */
                                          directory, /* directory */

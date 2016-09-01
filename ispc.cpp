@@ -934,7 +934,7 @@ Target::Target(const char *arch, const char *cpu, const char *isa, bool pic, boo
         // ?? this->m_dataTypeWidth = 32;
         this->m_vectorWidth = 16;
         this->m_maskingIsFree = true;
-        this->m_maskBitCount = 1;
+        this->m_maskBitCount = 8;
         this->m_hasHalf = true;
         this->m_hasRand = true;
         this->m_hasGather = this->m_hasScatter = true;
@@ -954,7 +954,7 @@ Target::Target(const char *arch, const char *cpu, const char *isa, bool pic, boo
         // ?? this->m_dataTypeWidth = 32;
         this->m_vectorWidth = 16;
         this->m_maskingIsFree = true;
-        this->m_maskBitCount = 1;
+        this->m_maskBitCount = 8;
         this->m_hasHalf = true;
         this->m_hasRand = true;
         this->m_hasGather = this->m_hasScatter = true;
@@ -1102,6 +1102,14 @@ Target::Target(const char *arch, const char *cpu, const char *isa, bool pic, boo
 #else /* LLVM 3.7+ */
         m_targetMachine->Options.MCOptions.AsmVerbose = true;
 #endif
+
+#if ISPC_LLVM_VERSION >= ISPC_LLVM_3_5
+        // Change default version of generated DWARF.
+        if (g->generateDWARFVersion != 0) {
+            m_targetMachine->Options.MCOptions.DwarfVersion = g->generateDWARFVersion;
+        }
+#endif
+
         // Initialize TargetData/DataLayout in 3 steps.
         // 1. Get default data layout first
         std::string dl_string;
@@ -1206,7 +1214,7 @@ Target::SupportedTargets() {
         "avx512skx-i32x16, "
 #endif
         "generic-x1, generic-x4, generic-x8, generic-x16, "
-        "generic-x32, generic-x64, *-generic-x16, "
+        "generic-x32, generic-x64, *-generic-x16"
 #ifdef ISPC_ARM_ENABLED
         ", neon-i8x16, neon-i16x8, neon-i32x4"
 #endif
@@ -1279,8 +1287,10 @@ Target::ISAToString(ISA isa) {
     case Target::KNL_AVX512:
         return "avx512knl";
 #endif
+#if ISPC_LLVM_VERSION >= ISPC_LLVM_3_8 // LLVM 3.8+
     case Target::SKX_AVX512:
         return "avx512skx";
+#endif
     case Target::GENERIC:
         return "generic";
 #ifdef ISPC_NVPTX_ENABLED
@@ -1517,6 +1527,9 @@ Globals::Globals() {
     emitPerfWarnings = true;
     emitInstrumentation = false;
     generateDebuggingSymbols = false;
+#if ISPC_LLVM_VERSION >= ISPC_LLVM_3_5
+    generateDWARFVersion = 0;
+#endif
     enableFuzzTest = false;
     fuzzTestSeed = -1;
     mangleFunctionsWithTarget = false;

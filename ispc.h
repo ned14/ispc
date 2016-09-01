@@ -41,7 +41,7 @@
 #include "ispc_version.h"
 
 #if ISPC_LLVM_VERSION < OLDEST_SUPPORTED_LLVM || ISPC_LLVM_VERSION > LATEST_SUPPORTED_LLVM
-#error "Only LLVM 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8 and 3.9 development branch are supported"
+#error "Only LLVM 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9 and 4.0 development branch are supported"
 #endif
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -605,6 +605,16 @@ struct Globals {
     /** Indicates whether ispc should generate debugging symbols for the
         program in its output. */
     bool generateDebuggingSymbols;
+
+    /** Require generation of DWARF of certain version (2, 3, 4). For
+        default version, this field is set to 0. */
+    // Hint: to verify dwarf version in the object file, run on Linux:
+    // readelf --debug-dump=info object.o | grep -A 2 'Compilation Unit @'
+    // on Mac:
+    // xcrun dwarfdump -r0 object.o
+#if ISPC_LLVM_VERSION >= ISPC_LLVM_3_5
+    int generateDWARFVersion;
+#endif
 
     /** If true, function names are mangled by appending the target ISA and
         vector width to them. */
